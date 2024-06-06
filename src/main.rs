@@ -5,8 +5,8 @@ use std::path::Path;
 use ansi_escape::TextStyling;
 
 enum Cli {
-    List(u32),
-    Find(String),
+    List { directory: Box<Path>, depth: u32 },
+    Find { directory: Box<Path>, name: String },
 }
 
 fn parse_args(args: &[String]) -> Cli {
@@ -19,21 +19,31 @@ fn parse_args(args: &[String]) -> Cli {
     match subcommand.as_str() {
         "list" => {
             if args.len() < 3 {
+                panic!("Please provide a 'directory' to list");
+            } else if args.len() < 4 {
                 panic!("Please provide a 'depth' to list");
             }
 
-            let depth = args.get(2).unwrap().parse::<u32>().unwrap();
+            let directory = Path::new(args.get(2).unwrap())
+                .to_path_buf()
+                .into_boxed_path();
+            let depth = args.get(3).unwrap().parse::<u32>().unwrap();
 
-            Cli::List(depth)
+            Cli::List { directory, depth }
         }
         "find" => {
             if args.len() < 3 {
-                panic!("Please provide a 'file name' to find");
+                panic!("Please provide a 'directory' to find");
+            } else if args.len() < 4 {
+                panic!("Please provide a 'name' to find");
             }
 
-            let name = args.get(2).unwrap().to_string();
+            let directory = Path::new(args.get(2).unwrap())
+                .to_path_buf()
+                .into_boxed_path();
+            let name = args.get(3).unwrap().to_string();
 
-            Cli::Find(name)
+            Cli::Find { directory, name }
         }
         _ => panic!("Unknown subcommand"),
     }
@@ -44,28 +54,18 @@ fn main() {
 
     let cli = parse_args(&args);
 
-    let current_dir = std::env::current_dir().unwrap();
-
     match cli {
-        Cli::List(depth) => {
+        Cli::List { directory, depth } => {
             println!("{}", "Listing directory contents".blue().bold());
-            println!(
-                "{}: {}\n",
-                "Current directory".gray(),
-                current_dir.display().bold()
-            );
+            println!("{}: {}\n", "Directory".gray(), directory.display().bold());
 
-            list_directory_contents_recursive(&current_dir, &current_dir, depth);
+            list_directory_contents_recursive(&directory, &directory, depth);
         }
-        Cli::Find(name) => {
+        Cli::Find { directory, name } => {
             println!("{} {}", "Finding file:".gray(), name.clone().blue().bold());
-            println!(
-                "{}: {}\n",
-                "Current directory".gray(),
-                current_dir.display().bold()
-            );
+            println!("{}: {}\n", "Directory".gray(), directory.display().bold());
 
-            find_file_recursive(&current_dir, &current_dir, &name);
+            find_file_recursive(&directory, &directory, &name);
         }
     }
 }
