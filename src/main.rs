@@ -1,9 +1,13 @@
+mod ansi_escape;
+
+use ansi_escape::TextStyling;
+
 enum Cli {
     List(u32),
     Find(String),
 }
 
-fn parse_args(args: &Vec<String>) -> Cli {
+fn parse_args(args: &[String]) -> Cli {
     if args.len() < 2 {
         panic!("Please provide a subcommand");
     }
@@ -40,7 +44,11 @@ fn main() {
 
     let current_dir = std::env::current_dir().unwrap();
 
-    println!("The current directory is '{}'", current_dir.display());
+    println!(
+        "{} {}\n",
+        "Current directory:".gray(),
+        current_dir.display().bold(),
+    );
 
     match cli {
         Cli::List(depth) => list_directory_contents_recursive(&current_dir, depth),
@@ -58,11 +66,11 @@ fn list_directory_contents_recursive(path: &std::path::Path, depth: u32) {
         let path = entry.path();
 
         if path.is_dir() {
-            print_gray(path.display());
+            println!("{}", path.display().gray());
 
             list_directory_contents_recursive(&path, depth - 1);
         } else {
-            print_green(path.display());
+            println!("{}", path.display().white());
         }
     }
 }
@@ -74,35 +82,8 @@ fn find_file_recursive(path: &std::path::Path, name: &str) {
 
         if path.is_dir() {
             find_file_recursive(&path, name);
-        } else {
-            if path.file_name().unwrap() == name {
-                print_green(path.display());
-            }
+        } else if path.file_name().unwrap() == name {
+            println!("{}", path.display().blue());
         }
     }
-}
-
-#[allow(dead_code)]
-fn print_gray<T: std::fmt::Display>(text: T) {
-    println!("\x1b[90m{}\x1b[0m", text);
-}
-
-#[allow(dead_code)]
-fn print_red<T: std::fmt::Display>(text: T) {
-    println!("\x1b[91m{}\x1b[0m", text);
-}
-
-#[allow(dead_code)]
-fn print_green<T: std::fmt::Display>(text: T) {
-    println!("\x1b[92m{}\x1b[0m", text);
-}
-
-#[allow(dead_code)]
-fn print_yellow<T: std::fmt::Display>(text: T) {
-    println!("\x1b[93m{}\x1b[0m", text);
-}
-
-#[allow(dead_code)]
-fn print_blue(text: &dyn std::fmt::Display) {
-    println!("\x1b[94m{}\x1b[0m", text);
 }
