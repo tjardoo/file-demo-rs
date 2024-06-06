@@ -1,5 +1,7 @@
 mod ansi_escape;
 
+use std::path::Path;
+
 use ansi_escape::TextStyling;
 
 enum Cli {
@@ -44,19 +46,31 @@ fn main() {
 
     let current_dir = std::env::current_dir().unwrap();
 
-    println!(
-        "{} {}\n",
-        "Current directory:".gray(),
-        current_dir.display().bold(),
-    );
-
     match cli {
-        Cli::List(depth) => list_directory_contents_recursive(&current_dir, depth),
-        Cli::Find(name) => find_file_recursive(&current_dir, &name),
+        Cli::List(depth) => {
+            println!("{}", "Listing directory contents".blue().bold());
+            println!(
+                "{}: {}\n",
+                "Current directory".gray(),
+                current_dir.display().bold()
+            );
+
+            list_directory_contents_recursive(&current_dir, &current_dir, depth);
+        }
+        Cli::Find(name) => {
+            println!("{} {}", "Finding file:".gray(), name.clone().blue().bold());
+            println!(
+                "{}: {}\n",
+                "Current directory".gray(),
+                current_dir.display().bold()
+            );
+
+            find_file_recursive(&current_dir, &current_dir, &name);
+        }
     }
 }
 
-fn list_directory_contents_recursive(path: &std::path::Path, depth: u32) {
+fn list_directory_contents_recursive(start_path: &Path, path: &Path, depth: u32) {
     if depth == 0 {
         return;
     }
@@ -68,22 +82,34 @@ fn list_directory_contents_recursive(path: &std::path::Path, depth: u32) {
         if path.is_dir() {
             println!("{}", path.display().gray());
 
-            list_directory_contents_recursive(&path, depth - 1);
+            list_directory_contents_recursive(start_path, &path, depth - 1);
         } else {
-            println!("{}", path.display().white());
+            print_without_current_path(start_path, &path);
         }
     }
 }
 
-fn find_file_recursive(path: &std::path::Path, name: &str) {
+fn find_file_recursive(start_path: &Path, path: &Path, name: &str) {
     for entry in std::fs::read_dir(path).unwrap() {
         let entry = entry.unwrap();
         let path = entry.path();
 
         if path.is_dir() {
-            find_file_recursive(&path, name);
-        } else if path.file_name().unwrap() == name {
-            println!("{}", path.display().blue());
+            find_file_recursive(start_path, &path, name);
+        } else if path
+            .file_name()
+            .unwrap()
+            .to_string_lossy()
+            .to_lowercase()
+            .contains(name.to_lowercase().as_str())
+        {
+            print_without_current_path(start_path, &path);
         }
     }
+}
+
+fn print_without_current_path(start_path: &Path, path: &Path) {
+    let path = path.strip_prefix(start_path).unwrap();
+
+    println!("{}", path.display());
 }
