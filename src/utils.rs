@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use crate::ansi_escape::TextStyling;
-use crate::cli_parser::{Cli, ListDirContentsType};
+use crate::cli::{Cli, ListDirContentsType};
 
 pub fn print_general_cli_info(cli: &Cli) {
     match cli {

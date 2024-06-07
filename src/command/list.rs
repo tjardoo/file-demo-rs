@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use crate::ansi_escape::TextStyling;
-use crate::cli_parser::ListDirContentsType;
+use crate::cli::ListDirContentsType;
 use crate::utils::print_without_start_path;
 
 pub fn list_directory_contents_recursive(

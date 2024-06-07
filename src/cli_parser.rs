@@ -1,32 +1,6 @@
 use std::path::Path;
 
-#[derive(Debug, PartialEq)]
-pub enum Cli {
-    List(ListDirContents),
-    Find(FindFile),
-}
-
-#[derive(Debug, PartialEq)]
-#[allow(dead_code)]
-pub enum ListDirContentsType {
-    File,
-    Dir,
-    Both,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct ListDirContents {
-    pub directory: Box<Path>,
-    pub depth: u32,
-    pub r#type: ListDirContentsType,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct FindFile {
-    pub directory: Box<Path>,
-    pub name: String,
-    pub depth: u32,
-}
+use crate::cli::{Cli, FindFile, ListDirContents, ListDirContentsType};
 
 pub fn parse_args(args: &[String]) -> Cli {
     let command = args.get(1).unwrap_or_else(|| {
@@ -43,11 +17,7 @@ pub fn parse_args(args: &[String]) -> Cli {
 }
 
 fn parse_list_command(args: &[String]) -> Cli {
-    let mut list_dir_contents = ListDirContents {
-        directory: std::env::current_dir().unwrap().into_boxed_path(),
-        depth: 1,
-        r#type: ListDirContentsType::Both,
-    };
+    let mut list_dir_contents = ListDirContents::default();
 
     for arg in args.iter().skip(2) {
         if arg.starts_with("--directory=") {
@@ -75,11 +45,7 @@ fn parse_list_command(args: &[String]) -> Cli {
 }
 
 fn parse_find_command(args: &[String]) -> Cli {
-    let mut find_file = FindFile {
-        directory: std::env::current_dir().unwrap().into_boxed_path(),
-        name: String::new(),
-        depth: 3,
-    };
+    let mut find_file = FindFile::default();
 
     for arg in args.iter().skip(2) {
         if arg.starts_with("--directory=") {

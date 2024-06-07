@@ -1,9 +1,11 @@
-use cli_parser::Cli;
+use cli::Cli;
 use utils::print_general_cli_info;
 
 mod ansi_escape;
+mod cli;
 mod cli_parser;
 mod command;
+mod macros;
 mod utils;
 
 fn main() {
