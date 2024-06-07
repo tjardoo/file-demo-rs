@@ -40,8 +40,8 @@ pub fn print_general_cli_info(cli: &Cli) {
     };
 }
 
-pub fn print_without_start_path(start_path: &Path, path: &Path) {
-    let path = path.strip_prefix(start_path).unwrap();
+pub fn path_without_base(base_path: &Path, path: &Path) -> String {
+    let path = path.strip_prefix(base_path).unwrap();
 
-    println!("{}", path.display());
+    path.display().to_string()
 }

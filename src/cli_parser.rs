@@ -1,6 +1,9 @@
 use std::path::Path;
 
-use crate::cli::{Cli, FindFile, ListDirContents, ListDirContentsType};
+use crate::{
+    cli::{Cli, FindFile, ListDirContents, ListDirContentsType},
+    handle_cli_find_argument, handle_cli_list_argument,
+};
 
 pub fn parse_args(args: &[String]) -> Cli {
     let command = args.get(1).unwrap_or_else(|| {
@@ -20,25 +23,7 @@ fn parse_list_command(args: &[String]) -> Cli {
     let mut list_dir_contents = ListDirContents::default();
 
     for arg in args.iter().skip(2) {
-        if arg.starts_with("--directory=") {
-            let directory = arg.split('=').last().unwrap();
-
-            list_dir_contents.directory = Path::new(directory).to_path_buf().into_boxed_path();
-        } else if arg.starts_with("--type=") {
-            let r#type = arg.split('=').last().unwrap();
-
-            list_dir_contents.r#type = match r#type {
-                "file" => ListDirContentsType::File,
-                "dir" => ListDirContentsType::Dir,
-                _ => ListDirContentsType::Both,
-            };
-        } else if arg.starts_with("--depth=") {
-            let depth = arg.split('=').last().unwrap();
-
-            list_dir_contents.depth = depth.parse().unwrap();
-        } else if arg.starts_with("--") {
-            panic!("Invalid argument: {}", arg);
-        }
+        handle_cli_list_argument!(arg, list_dir_contents);
     }
 
     Cli::List(list_dir_contents)
@@ -48,21 +33,7 @@ fn parse_find_command(args: &[String]) -> Cli {
     let mut find_file = FindFile::default();
 
     for arg in args.iter().skip(2) {
-        if arg.starts_with("--directory=") {
-            let directory = arg.split('=').last().unwrap();
-
-            find_file.directory = Path::new(directory).to_path_buf().into_boxed_path();
-        } else if arg.starts_with("--name=") {
-            let name = arg.split('=').last().unwrap();
-
-            find_file.name = name.to_string();
-        } else if arg.starts_with("--depth=") {
-            let depth = arg.split('=').last().unwrap();
-
-            find_file.depth = depth.parse().unwrap();
-        } else if arg.starts_with("--") {
-            panic!("Invalid argument: {}", arg);
-        }
+        handle_cli_find_argument!(arg, find_file);
     }
 
     if find_file.name.is_empty() {

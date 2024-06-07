@@ -2,7 +2,7 @@ use std::path::Path;
 
 use crate::ansi_escape::TextStyling;
 use crate::cli::ListDirContentsType;
-use crate::utils::print_without_start_path;
+use crate::utils::path_without_base;
 
 pub fn list_directory_contents_recursive(
     start_path: &Path,
@@ -20,16 +20,24 @@ pub fn list_directory_contents_recursive(
 
         if path.is_dir() {
             match r#type {
-                ListDirContentsType::Dir => println!("{}", path.display().gray()),
-                ListDirContentsType::Both => println!("{}", path.display().gray()),
+                ListDirContentsType::Dir => {
+                    println!("{}", path_without_base(start_path, &path).gray())
+                }
+                ListDirContentsType::Both => {
+                    println!("{}", path_without_base(start_path, &path).gray())
+                }
                 _ => {}
             };
 
             list_directory_contents_recursive(start_path, &path, r#type, depth - 1);
         } else {
             match r#type {
-                ListDirContentsType::Dir => print_without_start_path(start_path, &path),
-                ListDirContentsType::Both => print_without_start_path(start_path, &path),
+                ListDirContentsType::File => {
+                    println!("{}", path_without_base(start_path, &path))
+                }
+                ListDirContentsType::Both => {
+                    println!("{}", path_without_base(start_path, &path))
+                }
                 _ => {}
             };
         }

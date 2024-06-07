@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::utils::print_without_start_path;
+use crate::utils::path_without_base;
 
 pub fn find_file_recursive(start_path: &Path, path: &Path, name: &str, depth: u32) {
     if depth == 0 {
@@ -20,7 +20,7 @@ pub fn find_file_recursive(start_path: &Path, path: &Path, name: &str, depth: u3
             .to_lowercase()
             .contains(name.to_lowercase().as_str())
         {
-            print_without_start_path(start_path, &path);
+            println!("{}", path_without_base(start_path, &path));
         }
     }
 }
