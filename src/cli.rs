@@ -16,14 +16,14 @@ pub enum ListDirContentsType {
 
 #[derive(Debug, PartialEq)]
 pub struct ListDirContents {
-    pub directory: Box<Path>,
+    pub path: Box<Path>,
     pub depth: u32,
     pub r#type: ListDirContentsType,
 }
 
 #[derive(Debug, PartialEq)]
 pub struct FindFile {
-    pub directory: Box<Path>,
+    pub path: Box<Path>,
     pub name: String,
     pub depth: u32,
 }
@@ -31,7 +31,7 @@ pub struct FindFile {
 impl Default for ListDirContents {
     fn default() -> Self {
         ListDirContents {
-            directory: std::env::current_dir().unwrap().into_boxed_path(),
+            path: std::env::current_dir().unwrap().into_boxed_path(),
             depth: 1,
             r#type: ListDirContentsType::Both,
         }
@@ -41,7 +41,7 @@ impl Default for ListDirContents {
 impl Default for FindFile {
     fn default() -> Self {
         FindFile {
-            directory: std::env::current_dir().unwrap().into_boxed_path(),
+            path: std::env::current_dir().unwrap().into_boxed_path(),
             name: String::new(),
             depth: 3,
         }

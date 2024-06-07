@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use crate::{
-    cli::{Cli, FindFile, ListDirContents, ListDirContentsType},
+    cli::{Cli, FindFile, ListDirContents},
     handle_cli_find_argument, handle_cli_list_argument,
 };
 
@@ -45,6 +45,8 @@ fn parse_find_command(args: &[String]) -> Cli {
 
 #[cfg(test)]
 mod tests {
+    use crate::cli::ListDirContentsType;
+
     use super::*;
 
     #[test]
@@ -52,7 +54,7 @@ mod tests {
         let args = vec![
             "N/A".to_string(),
             "list".to_string(),
-            "--directory=/var/www".to_string(),
+            "--path=/var/www".to_string(),
             "--depth=2".to_string(),
             "--type=file".to_string(),
         ];
@@ -62,7 +64,7 @@ mod tests {
         assert_eq!(
             cli,
             Cli::List(ListDirContents {
-                directory: Path::new("/var/www").to_path_buf().into_boxed_path(),
+                path: Path::new("/var/www").to_path_buf().into_boxed_path(),
                 depth: 2,
                 r#type: ListDirContentsType::File,
             })
@@ -78,9 +80,31 @@ mod tests {
         assert_eq!(
             cli,
             Cli::List(ListDirContents {
-                directory: std::env::current_dir().unwrap().into_boxed_path(),
+                path: std::env::current_dir().unwrap().into_boxed_path(),
                 depth: 1,
                 r#type: ListDirContentsType::Both,
+            })
+        );
+    }
+
+    #[test]
+    fn test_parse_list_command_shortcodes() {
+        let args = vec![
+            "N/A".to_string(),
+            "list".to_string(),
+            "-p=/var/www".to_string(),
+            "-d=2".to_string(),
+            "-t=file".to_string(),
+        ];
+
+        let cli = parse_list_command(&args);
+
+        assert_eq!(
+            cli,
+            Cli::List(ListDirContents {
+                path: Path::new("/var/www").to_path_buf().into_boxed_path(),
+                depth: 2,
+                r#type: ListDirContentsType::File,
             })
         );
     }
@@ -90,7 +114,7 @@ mod tests {
         let args = vec![
             "N/A".to_string(),
             "find".to_string(),
-            "--directory=/var/www".to_string(),
+            "--path=/var/www".to_string(),
             "--name=example.txt".to_string(),
             "--depth=1".to_string(),
         ];
@@ -100,7 +124,7 @@ mod tests {
         assert_eq!(
             cli,
             Cli::Find(FindFile {
-                directory: Path::new("/var/www").to_path_buf().into_boxed_path(),
+                path: Path::new("/var/www").to_path_buf().into_boxed_path(),
                 name: "example.txt".to_string(),
                 depth: 1,
             })
@@ -120,9 +144,31 @@ mod tests {
         assert_eq!(
             cli,
             Cli::Find(FindFile {
-                directory: std::env::current_dir().unwrap().into_boxed_path(),
+                path: std::env::current_dir().unwrap().into_boxed_path(),
                 name: "example.txt".to_string(),
                 depth: 3,
+            })
+        );
+    }
+
+    #[test]
+    fn test_parse_find_command_shortcodes() {
+        let args = vec![
+            "N/A".to_string(),
+            "find".to_string(),
+            "-p=/var/www".to_string(),
+            "-n=example.txt".to_string(),
+            "-d=1".to_string(),
+        ];
+
+        let cli = parse_find_command(&args);
+
+        assert_eq!(
+            cli,
+            Cli::Find(FindFile {
+                path: Path::new("/var/www").to_path_buf().into_boxed_path(),
+                name: "example.txt".to_string(),
+                depth: 1,
             })
         );
     }

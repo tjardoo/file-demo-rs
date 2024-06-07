@@ -21,7 +21,7 @@ pub fn print_general_cli_info(cli: &Cli) {
             println!(
                 "{} {}\n",
                 "Path:".gray(),
-                list_dir_contents.directory.display().bold()
+                list_dir_contents.path.display().bold()
             );
         }
         Cli::Find(find_file) => {
@@ -31,11 +31,7 @@ pub fn print_general_cli_info(cli: &Cli) {
                 find_file.name.clone().blue().bold()
             );
 
-            println!(
-                "{} {}\n",
-                "Path:".gray(),
-                find_file.directory.display().bold()
-            );
+            println!("{} {}\n", "Path:".gray(), find_file.path.display().bold());
         }
     };
 }

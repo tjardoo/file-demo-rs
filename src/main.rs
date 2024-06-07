@@ -18,16 +18,16 @@ fn main() {
     match cli {
         Cli::List(list_dir_contents) => {
             command::list::list_directory_contents_recursive(
-                list_dir_contents.directory.as_ref(),
-                list_dir_contents.directory.as_ref(),
+                list_dir_contents.path.as_ref(),
+                list_dir_contents.path.as_ref(),
                 &list_dir_contents.r#type,
                 list_dir_contents.depth,
             );
         }
         Cli::Find(find_file) => {
             command::find::find_file_recursive(
-                find_file.directory.as_ref(),
-                find_file.directory.as_ref(),
+                find_file.path.as_ref(),
+                find_file.path.as_ref(),
                 &find_file.name,
                 find_file.depth,
             );
