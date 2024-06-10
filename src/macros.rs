@@ -8,9 +8,9 @@ macro_rules! handle_cli_list_argument {
                 }
                 "--type" | "-t" => {
                     $list_dir_contents.r#type = match value {
-                        "file" => crate::cli::ListDirContentsType::File,
-                        "dir" => crate::cli::ListDirContentsType::Dir,
-                        _ => crate::cli::ListDirContentsType::Both,
+                        "file" => $crate::cli::ListDirContentsType::File,
+                        "dir" => $crate::cli::ListDirContentsType::Dir,
+                        _ => $crate::cli::ListDirContentsType::Both,
                     };
                 }
                 "--depth" | "-d" => {

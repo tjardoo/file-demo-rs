@@ -1,22 +1,64 @@
 use std::fmt::{Display, Formatter, Result};
 
+macro_rules! generate_code_function {
+    (
+        $(#[$enum_attrs:meta])*
+        $vis:vis enum $enum_name:ident {
+            $(
+                #[code = $code:literal]
+                $(#[$variant_attrs:meta])*
+                $variant:ident
+            ),*
+            $(,)?
+        }
+    ) => {
+        $(#[$enum_attrs])*
+        $vis enum $enum_name {
+            $(
+                $(#[$variant_attrs])*
+                $variant,
+            )*
+        }
+
+        impl $enum_name {
+            pub fn code(&self) -> u8 {
+                match self {
+                    $(Self::$variant => $code,)*
+                }
+            }
+        }
+    }
+}
+
 pub struct Style<T> {
     text: T,
     code: u8,
 }
 
-#[allow(dead_code)]
-pub enum StyleCode {
-    White,
-    Gray,
-    Red,
-    Green,
-    Yellow,
-    Blue,
-    Bold,
-    Italic,
-    Underline,
-    Strikethrough,
+generate_code_function! {
+    #[allow(dead_code)]
+    pub enum StyleCode {
+        #[code = 37]
+        White,
+        #[code = 90]
+        Gray,
+        #[code = 91]
+        Red,
+        #[code = 92]
+        Green,
+        #[code = 93]
+        Yellow,
+        #[code = 94]
+        Blue,
+        #[code = 1]
+        Bold,
+        #[code = 3]
+        Italic,
+        #[code = 4]
+        Underline,
+        #[code = 9]
+        Strikethrough,
+    }
 }
 
 pub trait TextStyling: Display {
@@ -24,20 +66,10 @@ pub trait TextStyling: Display {
     where
         Self: Sized,
     {
-        let code = match style_code {
-            StyleCode::White => 37,
-            StyleCode::Gray => 90,
-            StyleCode::Red => 91,
-            StyleCode::Green => 92,
-            StyleCode::Yellow => 93,
-            StyleCode::Blue => 94,
-            StyleCode::Bold => 1,
-            StyleCode::Italic => 3,
-            StyleCode::Underline => 4,
-            StyleCode::Strikethrough => 9,
-        };
-
-        Style { text: self, code }
+        Style {
+            text: self,
+            code: style_code.code(),
+        }
     }
 
     fn white(self) -> Style<Self>
