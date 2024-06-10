@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter, Result};
 
-macro_rules! generate_code_function {
+macro_rules! generate_styling_functions {
     (
         $(#[$enum_attrs:meta])*
         $vis:vis enum $enum_name:ident {
@@ -21,12 +21,35 @@ macro_rules! generate_code_function {
         }
 
         impl $enum_name {
+            #[allow(dead_code)]
             pub fn code(&self) -> u8 {
                 match self {
                     $(Self::$variant => $code,)*
                 }
             }
         }
+
+        impl $enum_name {
+            $(
+                #[allow(dead_code)]
+                pub fn $variant() -> Self {
+                    Self::$variant
+                }
+            )*
+        }
+
+        pub trait TextStyling: Display {
+            $(
+                fn $variant(self) -> Style<Self>
+                where
+                    Self: Sized,
+                {
+                    self.style($enum_name::$variant)
+                }
+            )*
+        }
+
+        impl<T: Display> TextStyling for T {}
     }
 }
 
@@ -35,33 +58,36 @@ pub struct Style<T> {
     code: u8,
 }
 
-generate_code_function! {
+generate_styling_functions! {
     #[allow(dead_code)]
+    #[allow(non_camel_case_types)]
     pub enum StyleCode {
         #[code = 37]
-        White,
+        white,
         #[code = 90]
-        Gray,
+        gray,
         #[code = 91]
-        Red,
+        red,
         #[code = 92]
-        Green,
+        green,
         #[code = 93]
-        Yellow,
+        yellow,
         #[code = 94]
-        Blue,
+        blue,
         #[code = 1]
-        Bold,
+        bold,
         #[code = 3]
-        Italic,
+        italic,
         #[code = 4]
-        Underline,
+        underline,
         #[code = 9]
-        Strikethrough,
+        strikethrough,
+        #[code = 107]
+        bg_white,
     }
 }
 
-pub trait TextStyling: Display {
+pub trait GeneratedTextStyling: Display + TextStyling {
     fn style(self, style_code: StyleCode) -> Style<Self>
     where
         Self: Sized,
@@ -71,79 +97,9 @@ pub trait TextStyling: Display {
             code: style_code.code(),
         }
     }
-
-    fn white(self) -> Style<Self>
-    where
-        Self: Sized,
-    {
-        self.style(StyleCode::White)
-    }
-
-    fn gray(self) -> Style<Self>
-    where
-        Self: Sized,
-    {
-        self.style(StyleCode::Gray)
-    }
-
-    fn red(self) -> Style<Self>
-    where
-        Self: Sized,
-    {
-        self.style(StyleCode::Red)
-    }
-
-    fn green(self) -> Style<Self>
-    where
-        Self: Sized,
-    {
-        self.style(StyleCode::Green)
-    }
-
-    fn yellow(self) -> Style<Self>
-    where
-        Self: Sized,
-    {
-        self.style(StyleCode::Yellow)
-    }
-
-    fn blue(self) -> Style<Self>
-    where
-        Self: Sized,
-    {
-        self.style(StyleCode::Blue)
-    }
-
-    fn bold(self) -> Style<Self>
-    where
-        Self: Sized,
-    {
-        self.style(StyleCode::Bold)
-    }
-
-    fn italic(self) -> Style<Self>
-    where
-        Self: Sized,
-    {
-        self.style(StyleCode::Italic)
-    }
-
-    fn underline(self) -> Style<Self>
-    where
-        Self: Sized,
-    {
-        self.style(StyleCode::Underline)
-    }
-
-    fn strikethrough(self) -> Style<Self>
-    where
-        Self: Sized,
-    {
-        self.style(StyleCode::Strikethrough)
-    }
 }
 
-impl<T: Display> TextStyling for T {}
+impl<T: Display> GeneratedTextStyling for T {}
 
 impl<T: Display> Display for Style<T> {
     fn fmt(&self, f: &mut Formatter) -> Result {
@@ -169,6 +125,7 @@ mod tests {
         let italic = text.italic();
         let underline = text.underline();
         let strikethrough = text.strikethrough();
+        let bg_white = text.bg_white();
 
         assert_eq!(format!("{}", white), "\x1b[37mHello, world!\x1b[0m");
         assert_eq!(format!("{}", gray), "\x1b[90mHello, world!\x1b[0m");
@@ -180,5 +137,6 @@ mod tests {
         assert_eq!(format!("{}", italic), "\x1b[3mHello, world!\x1b[0m");
         assert_eq!(format!("{}", underline), "\x1b[4mHello, world!\x1b[0m");
         assert_eq!(format!("{}", strikethrough), "\x1b[9mHello, world!\x1b[0m");
+        assert_eq!(format!("{}", bg_white), "\x1b[107mHello, world!\x1b[0m");
     }
 }
