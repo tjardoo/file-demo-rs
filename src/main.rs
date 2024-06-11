@@ -1,4 +1,5 @@
 use cli::Cli;
+use container::init_container;
 use utils::print_general_cli_info;
 
 mod ansi_escape;
@@ -10,7 +11,7 @@ mod macros;
 mod utils;
 
 fn main() {
-    // init_container();
+    init_container();
 
     let args: Vec<String> = std::env::args().collect();
 

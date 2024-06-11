@@ -1,22 +1,22 @@
-use std::{any::Any, collections::HashMap, sync::Mutex};
+use std::{
+    any::Any,
+    collections::HashMap,
+    sync::{Mutex, OnceLock},
+};
 
-static mut CONTAINER: Option<Mutex<Container>> = None;
+static CONTAINER: OnceLock<Mutex<Container>> = OnceLock::new();
 
-#[allow(dead_code)]
 pub fn init_container() {
-    unsafe {
-        CONTAINER = Some(Mutex::new(Container::new()));
-    }
+    CONTAINER.get_or_init(|| Mutex::new(Container::new()));
 }
 
 #[allow(dead_code)]
 pub fn container() -> &'static Mutex<Container> {
-    unsafe { CONTAINER.as_ref().expect("Container not initialized") }
+    CONTAINER.get().expect("Container not initialized")
 }
 
 pub struct Container {
-    #[allow(dead_code)]
-    items: HashMap<String, Box<dyn Any>>,
+    items: HashMap<String, Box<dyn Any + Send>>,
 }
 
 impl Container {
@@ -27,7 +27,7 @@ impl Container {
     }
 
     #[allow(dead_code)]
-    pub fn bind<T: 'static>(&mut self, key: &str, value: T) {
+    pub fn bind<T: 'static + Send>(&mut self, key: &str, value: T) {
         self.items.insert(key.to_string(), Box::new(value));
     }
 
@@ -76,5 +76,18 @@ mod tests {
         let container = container().lock().unwrap();
 
         assert_eq!(container.resolve::<String>("something_else"), None);
+    }
+
+    #[test]
+    fn test_multiple_inits() {
+        init_container();
+
+        let mut container = container().lock().unwrap();
+
+        container.bind("number_ten", 10);
+
+        init_container();
+
+        assert_eq!(container.resolve("number_ten"), Some(&10));
     }
 }
