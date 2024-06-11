@@ -1,6 +1,5 @@
 use cli::Cli;
 use container::init_container;
-use state_machine::{Done, Filling, StateMachine};
 use utils::print_general_cli_info;
 
 mod ansi_escape;
@@ -18,10 +17,6 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
 
     let cli = cli_parser::parse_args(&args);
-
-    let in_waiting = StateMachine::new(0);
-    let in_filling = StateMachine::<Filling>::from(in_waiting);
-    let _in_done = StateMachine::<Done>::from(in_filling);
 
     print_general_cli_info(&cli);
 
