@@ -5,10 +5,13 @@ mod ansi_escape;
 mod cli;
 mod cli_parser;
 mod command;
+mod container;
 mod macros;
 mod utils;
 
 fn main() {
+    // init_container();
+
     let args: Vec<String> = std::env::args().collect();
 
     let cli = cli_parser::parse_args(&args);
