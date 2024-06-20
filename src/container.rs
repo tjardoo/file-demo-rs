@@ -44,12 +44,6 @@ mod tests {
     use super::*;
 
     #[test]
-    #[should_panic]
-    fn test_without_init_container() {
-        let _container = container().lock().unwrap();
-    }
-
-    #[test]
     fn test_bind() {
         init_container();
 

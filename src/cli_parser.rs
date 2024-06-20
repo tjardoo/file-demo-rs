@@ -2,7 +2,8 @@ use std::path::Path;
 
 use crate::{
     cli::{Cli, FindFile, ListDirContents},
-    handle_cli_find_argument, handle_cli_list_argument,
+    handle_cli_find_argument, handle_cli_list_argument, handle_cli_users_argument,
+    user_filter::UserFilterInput,
 };
 
 pub fn parse_args(args: &[String]) -> Cli {
@@ -13,6 +14,7 @@ pub fn parse_args(args: &[String]) -> Cli {
     let cli = match command.as_str() {
         "list" => parse_list_command(args),
         "find" => parse_find_command(args),
+        "users" => parse_users_command(args),
         _ => panic!("Invalid command"),
     };
 
@@ -41,6 +43,16 @@ fn parse_find_command(args: &[String]) -> Cli {
     }
 
     Cli::Find(find_file)
+}
+
+fn parse_users_command(args: &[String]) -> Cli {
+    let mut input = UserFilterInput::default();
+
+    for arg in args.iter().skip(2) {
+        handle_cli_users_argument!(arg, input);
+    }
+
+    Cli::Users(input)
 }
 
 #[cfg(test)]
@@ -179,5 +191,27 @@ mod tests {
         let args = vec!["N/A".to_string(), "find".to_string()];
 
         parse_find_command(&args);
+    }
+
+    #[test]
+    fn test_parse_users_command_default() {
+        let args = vec![
+            "N/A".to_string(),
+            "users".to_string(),
+            "--name=John".to_string(),
+            "--active=true".to_string(),
+        ];
+
+        let cli = parse_users_command(&args);
+
+        assert_eq!(
+            cli,
+            Cli::Users(UserFilterInput {
+                name: Some("John".to_string()),
+                min_age: None,
+                max_age: None,
+                is_active: Some(true),
+            })
+        );
     }
 }

@@ -7,8 +7,12 @@ mod cli;
 mod cli_parser;
 mod command;
 mod container;
+mod database;
+mod filters;
 mod macros;
+mod models;
 mod state_machine;
+mod user_filter;
 mod utils;
 
 fn main() {
@@ -36,6 +40,9 @@ fn main() {
                 &find_file.name,
                 find_file.depth,
             );
+        }
+        Cli::Users(input) => {
+            command::users::filter_users(input);
         }
     }
 }

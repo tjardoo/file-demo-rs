@@ -51,3 +51,31 @@ macro_rules! handle_cli_find_argument {
         }
     };
 }
+
+#[macro_export]
+macro_rules! handle_cli_users_argument {
+    ($arg:expr, $user_filter_input:expr) => {
+        if let Some((key, value)) = $arg.split_once('=') {
+            match key {
+                "--name" | "-n" => {
+                    $user_filter_input.name = Some(value.to_string());
+                }
+                "--min" => {
+                    $user_filter_input.min_age = Some(value.parse().unwrap());
+                }
+                "--max" => {
+                    $user_filter_input.max_age = Some(value.parse().unwrap());
+                }
+                "--active" | "-a" => {
+                    $user_filter_input.is_active = Some(value.parse().unwrap());
+                }
+                _ if key.starts_with("--") => {
+                    panic!("Invalid argument: {}", $arg);
+                }
+                _ => {}
+            }
+        } else if $arg.starts_with("--") {
+            panic!("Invalid argument: {}", $arg);
+        }
+    };
+}

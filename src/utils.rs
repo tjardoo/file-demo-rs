@@ -33,6 +33,9 @@ pub fn print_general_cli_info(cli: &Cli) {
 
             println!("{} {}\n", "Path:".gray(), find_file.path.display().bold());
         }
+        Cli::Users(_) => {
+            println!("{}", "Filtering users".blue().bold());
+        }
     };
 }
 

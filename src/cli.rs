@@ -1,9 +1,12 @@
 use std::path::Path;
 
+use crate::user_filter::UserFilterInput;
+
 #[derive(Debug, PartialEq)]
 pub enum Cli {
     List(ListDirContents),
     Find(FindFile),
+    Users(UserFilterInput),
 }
 
 #[derive(Debug, PartialEq)]
