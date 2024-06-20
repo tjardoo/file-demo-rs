@@ -1,7 +1,6 @@
-use chrono::NaiveDate;
 use rusqlite::Connection;
 
-use crate::models::user::User;
+use crate::{models::user::User, query_map_macro};
 
 pub fn users() -> Vec<User> {
     let conn = Connection::open("database.db").unwrap();
@@ -66,19 +65,7 @@ fn get_users_from_table(conn: &Connection) -> Vec<User> {
         )
         .unwrap();
 
-    let mapped_rows = stmt
-        .query_map([], |row| {
-            Ok(User {
-                id: row.get(0)?,
-                first_name: row.get(1)?,
-                last_name: row.get(2)?,
-                date_of_birth: NaiveDate::parse_from_str(&row.get::<_, String>(3)?, "%Y-%m-%d")
-                    .unwrap(),
-                is_active: row.get(4)?,
-                created_at: row.get(5)?,
-            })
-        })
-        .unwrap();
+    let mapped_rows = query_map_macro!(stmt, User);
 
     mapped_rows
         .collect::<Result<Vec<User>, rusqlite::Error>>()

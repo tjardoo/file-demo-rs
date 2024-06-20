@@ -11,7 +11,9 @@ mod database;
 mod filters;
 mod macros;
 mod models;
+mod query;
 mod state_machine;
+mod types;
 mod user_filter;
 mod utils;
 

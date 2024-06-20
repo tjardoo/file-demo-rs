@@ -17,12 +17,7 @@ impl UserFilter for AgeFilter {
         users
             .into_iter()
             .filter(|user| {
-                let date_of_birth_timestamp = user
-                    .date_of_birth
-                    .and_hms_opt(0, 0, 0)
-                    .unwrap()
-                    .and_utc()
-                    .timestamp();
+                let date_of_birth_timestamp = user.date_of_birth.timestamp();
 
                 if let Some(min_age_timestamp) = min_age_timestamp {
                     if date_of_birth_timestamp > min_age_timestamp {
